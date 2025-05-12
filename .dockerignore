@@ -1,0 +1,11 @@
+# This file specifies files and directories to ignore when building the Docker image.
+vendor/
+*.log
+*.tmp
+*.md
+.git
+.gitignore
+docker-compose.yml
+Dockerfile
+.kubernetes/
+.kube/
