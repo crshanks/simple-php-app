@@ -44,42 +44,47 @@ docker build --no-cache --platform linux/arm64 -t sample-php-app .
 
 # For other platforms (e.g., Intel Macs, Linux amd64), you can often omit --platform:
 # docker build --no-cache -t sample-php-app .
+```
 
 Note: --no-cache ensures a fresh build, useful during development but can be slower. Omit it for subsequent builds to use Docker's cache.
 
-b. Run the Docker Container:
+**b. Run the Docker Container:**
 
 Replace <YOUR_NEW_RELIC_LICENSE_KEY> with your actual New Relic Ingest License Key.
-Bash
 
+```bash
 docker run --platform linux/arm64 -d \
   -e NEW_RELIC_LICENSE_KEY="<YOUR_NEW_RELIC_LICENSE_KEY>" \
   -e NEW_RELIC_APP_NAME="Sample PHP App (Local Docker)" \
   -p 8080:8080 \
   --name my-php-app-instance \
   sample-php-app
+```
 
 Note: If you built without --platform linux/arm64, omit it from the docker run command as well.
 
 Once the container is running, your application should be accessible at http://localhost:8080, and APM data should start appearing in your New Relic account under the application name "Sample PHP App (Local Docker)".
-2. Kubernetes Deployment (Minikube - Application APM)
+
+---
+
+## 2. Kubernetes Deployment (Minikube - Application APM)
 
 This section guides you through deploying the instrumented application to a local Minikube Kubernetes cluster.
 
-a. Start Minikube:
+**a. Start Minikube:**
 
 If Minikube is not already running:
-Bash
 
+```bash
 minikube start
+```
 
-For M1/ARM64 Mac users, you might need to specify a driver compatible with arm64, e.g., --driver=docker or ensure your Minikube VM supports arm64.
+For M1/ARM64 Mac users, you might need to specify a driver compatible with arm64, e.g., `--driver=docker` or ensure your Minikube VM supports arm64.
 
-b. Build the Docker Image within Minikube's Environment:
+**b. Build the Docker Image within Minikube's Environment:**
 
 To ensure Minikube can find the image, build it within Minikube's Docker daemon:
-Bash
-
+```bash
 eval $(minikube -p minikube docker-env)
 
 # Build the image.
@@ -88,57 +93,60 @@ eval $(minikube -p minikube docker-env)
 docker build --no-cache -t sample-php-app .
 # If you are on an M1 Mac and your Minikube VM is specifically arm64,
 # you might use --platform linux/arm64, but test compatibility.
+```
 
-Note: After this, if you want to use your local Docker daemon again, you might need to run eval $(minikube docker-env -u).
+Note: After this, if you want to use your local Docker daemon again, you might need to run `eval $(minikube docker-env -u)`.
 
-c. Create Kubernetes Secrets for New Relic:
+**c. Create Kubernetes Secrets for New Relic:**
 
-Replace <YOUR_NEW_RELIC_LICENSE_KEY> with your actual key.
-Bash
-
+Replace `<YOUR_NEW_RELIC_LICENSE_KEY>` with your actual key.
+```bash
 kubectl create secret generic newrelic-secret \
   --from-literal=NEW_RELIC_LICENSE_KEY="<YOUR_NEW_RELIC_LICENSE_KEY>" \
   --from-literal=NEW_RELIC_APP_NAME="Sample PHP App (K8s)"
-
-d. Deploy the Application:
+```
+**d. Deploy the Application:**
 
 This assumes you have deployment.yaml and service.yaml files in a kubernetes/ directory within this repository. These files should define how your application is deployed and exposed. Ensure the deployment.yaml references the newrelic-secret for environment variables.
-Bash
 
+```bash
 kubectl apply -f kubernetes/deployment.yaml
 kubectl apply -f kubernetes/service.yaml
+```
 
 (You should provide example deployment.yaml and service.yaml files in the repo for users).
 
-e. Accessing the Application:
+**e. Accessing the Application:**
 
-    View Kubernetes Dashboard (Optional):
-    Bash
+1. View Kubernetes Dashboard (Optional):
+    
+    ```bash
+    minikube dashboard
+    ```
 
-minikube dashboard
+    This provides a web UI to inspect your cluster, pods, logs, etc.
 
-This provides a web UI to inspect your cluster, pods, logs, etc.
-
-Expose the Service:
-If your service.yaml defines a service of type LoadBalancer, use minikube tunnel in a separate terminal window:
-Bash
-
+2. Expose the Service:
+    If your service.yaml defines a service of type LoadBalancer, use minikube tunnel in a separate terminal window:
+    ```bash
     minikube tunnel
+    ```
 
     This will provide an external IP for your service. If using NodePort, find the Minikube IP (minikube ip) and the assigned NodePort.
 
-    Access in Browser:
-    Once exposed, you should be able to access the application (e.g., http://<EXTERNAL_IP_FROM_TUNNEL>:8080 or http://$(minikube ip):<NODE_PORT>). APM data will appear under "Sample PHP App (K8s)".
+3. Access in Browser:
+    Once exposed, you should be able to access the application (e.g., `http://<EXTERNAL_IP_FROM_TUNNEL>:8080` or `http://$(minikube ip):<NODE_PORT>)`. APM data will appear under "Sample PHP App (K8s)".
 
-3. Kubernetes Cluster Monitoring with New Relic (Example)
+---
+## 3. Kubernetes Cluster Monitoring with New Relic (Example)
 
 To monitor the Kubernetes cluster itself (nodes, overall pod health, events, logs, etc.), you can install New Relic's Kubernetes integration.
 
-Important: New Relic's installation methods, Helm chart versions, and recommended configurations for Kubernetes evolve rapidly. Always refer to the official New Relic Kubernetes integration documentation for the most current, detailed, and guided installation steps. The New Relic UI often provides the most up-to-date instructions.
+Important: New Relic's installation methods, Helm chart versions, and recommended configurations for Kubernetes evolve rapidly. Always refer to the [official New Relic Kubernetes integration documentation](https://docs.newrelic.com/docs/kubernetes-pixie/kubernetes-integration/get-started/introduction-kubernetes-integration/) for the most current, detailed, and guided installation steps. The New Relic UI often provides the most up-to-date instructions.
 
 The following Helm command is provided as an example of how this might be done and may require adjustments:
-Bash
 
+```bash
 # Define your New Relic License Key and Cluster Name
 export NR_LICENSE_KEY="<YOUR_NEW_RELIC_LICENSE_KEY>"
 export NR_CLUSTER_NAME="minikube-cluster-sample" # Choose a name for your cluster
@@ -166,22 +174,24 @@ helm upgrade --install newrelic-bundle newrelic/nri-bundle \
   --set newrelic-prometheus-agent.config.kubernetes.integrations_filter.enabled=false \
   --set logging.enabled=true \
   --set newrelic-logging.lowDataMode=true
+```
 
-Replace <YOUR_NEW_RELIC_LICENSE_KEY> before running.
-This example installs various components. You can customize these based on your needs by referring to the nri-bundle chart's values and the official documentation.
-Verification
+Replace `<YOUR_NEW_RELIC_LICENSE_KEY>` before running.
+This example installs various components. You can customize these based on your needs by referring to the `nri-bundle` chart's values and the official documentation.
 
-    APM Data: After deploying your application (local Docker or Kubernetes) and generating some traffic, log in to your New Relic account. Navigate to "APM & Services." You should see your application listed (e.g., "Sample PHP App (Local Docker)" or "Sample PHP App (K8s)") and be able to drill into transaction traces, errors, etc.
-    Kubernetes Cluster Data: If you installed the Kubernetes integration, navigate to "Infrastructure" -> "Kubernetes" in New Relic to see data from your cluster.
-    It might take 5-10 minutes for initial data to appear.
+---
+## Verification
 
-Troubleshooting
+- APM Data: After deploying your application (local Docker or Kubernetes) and generating some traffic, log in to your New Relic account. Navigate to "APM & Services." You should see your application listed (e.g., "Sample PHP App (Local Docker)" or "Sample PHP App (K8s)") and be able to drill into transaction traces, errors, etc.
+- Kubernetes Cluster Data: If you installed the Kubernetes integration, navigate to "Infrastructure" -> "Kubernetes" in New Relic to see data from your cluster.
+- It might take 5-10 minutes for initial data to appear.
 
-    Ensure your NEW_RELIC_LICENSE_KEY is correct and an Ingest License Key.
-    Check container/pod logs for any errors from the New Relic agent or daemon.
-        Local Docker: docker logs my-php-app-instance
-        Kubernetes: kubectl logs <your-pod-name> -n <namespace>
-    Verify network connectivity from your container/pods to New Relic collector endpoints if data is missing.
-    Consult the New Relic Diagnostics CLI for advanced troubleshooting.
+---
+## Troubleshooting
 
-<!-- end list -->
+- Ensure your `NEW_RELIC_LICENSE_KEY` is correct and an Ingest License Key.
+- Check container/pod logs for any errors from the New Relic agent or daemon.
+  - Local Docker: `docker logs my-php-app-instance`
+  - Kubernetes: `kubectl logs <your-pod-name> -n <namespace>`
+- Verify network connectivity from your container/pods to New Relic collector endpoints if data is missing.
+- Consult the [New Relic Diagnostics CLI](https://www.google.com/search?q=https://docs.newrelic.com/docs/new-relic-solutions/troubleshooting-guides/diagnose/new-relic-diagnostics/) for advanced troubleshooting.
