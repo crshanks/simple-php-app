@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: simple-php-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: simple-php-app
@@ -15,10 +15,13 @@ spec:
       containers:
       - name: simple-php-app
         # image: your-dockerhub-username/simple-php-app:latest
-        image: simple-php-app:latest # Use the local image name
+        image: simple-php-newrelic-app:latest # Use the local image name
         imagePullPolicy: Never       # Prevent Kubernetes from trying to pull the image from a registry
         ports:
         - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: newrelic-secret
         resources:
           limits:
             memory: "128Mi"
