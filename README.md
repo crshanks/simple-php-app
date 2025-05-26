@@ -1,6 +1,6 @@
-# Sample PHP Application with New Relic Instrumentation
+# Simple PHP Application with New Relic Instrumentation
 
-This repository contains a sample PHP application instrumented with the New Relic APM agent.
+This repository contains a simple PHP application instrumented with the New Relic APM agent.
 It includes instructions for building and deploying the application using Docker locally, and on a Kubernetes (Minikube) cluster for APM.
 Additionally, an example for setting up New Relic infrastructure monitoring for the Kubernetes cluster itself is provided.
 
@@ -40,10 +40,10 @@ This section describes how to build and run the instrumented PHP application loc
 
 ```bash
 # For M1/ARM64 Mac users, explicitly specifying the platform is recommended:
-docker build --no-cache --platform linux/arm64 -t sample-php-app .
+docker build --no-cache --platform linux/arm64 -t simple-php-app .
 
 # For other platforms (e.g., Intel Macs, Linux amd64), you can often omit --platform:
-# docker build --no-cache -t sample-php-app .
+# docker build --no-cache -t simple-php-app .
 ```
 
 Note: --no-cache ensures a fresh build, useful during development but can be slower. Omit it for subsequent builds to use Docker's cache.
@@ -55,15 +55,15 @@ Replace <YOUR_NEW_RELIC_LICENSE_KEY> with your actual New Relic Ingest License K
 ```bash
 docker run --platform linux/arm64 -d \
   -e NEW_RELIC_LICENSE_KEY="<YOUR_NEW_RELIC_LICENSE_KEY>" \
-  -e NEW_RELIC_APP_NAME="Sample PHP App (Local Docker)" \
+  -e NEW_RELIC_APP_NAME="Simple PHP App (Local Docker)" \
   -p 8080:8080 \
   --name my-php-app-instance \
-  sample-php-app
+  simple-php-app
 ```
 
 Note: If you built without --platform linux/arm64, omit it from the docker run command as well.
 
-Once the container is running, your application should be accessible at http://localhost:8080, and APM data should start appearing in your New Relic account under the application name "Sample PHP App (Local Docker)".
+Once the container is running, your application should be accessible at http://localhost:8080, and APM data should start appearing in your New Relic account under the application name "Simple PHP App (Local Docker)".
 
 ---
 
@@ -90,7 +90,7 @@ eval $(minikube -p minikube docker-env)
 # Build the image.
 # Ensure your Minikube VM's architecture is compatible with the build.
 # For default Minikube (often amd64) or M1 Macs with an arm64 Minikube VM:
-docker build --no-cache -t sample-php-app .
+docker build --no-cache -t simple-php-app .
 # If you are on an M1 Mac and your Minikube VM is specifically arm64,
 # you might use --platform linux/arm64, but test compatibility.
 ```
@@ -103,7 +103,7 @@ Replace `<YOUR_NEW_RELIC_LICENSE_KEY>` with your actual key.
 ```bash
 kubectl create secret generic newrelic-secret \
   --from-literal=NEW_RELIC_LICENSE_KEY="<YOUR_NEW_RELIC_LICENSE_KEY>" \
-  --from-literal=NEW_RELIC_APP_NAME="Sample PHP App (K8s)"
+  --from-literal=NEW_RELIC_APP_NAME="Simple PHP App (K8s)"
 ```
 **d. Deploy the Application:**
 
@@ -135,7 +135,7 @@ kubectl apply -f kubernetes/service.yaml
     This will provide an external IP for your service. If using NodePort, find the Minikube IP (minikube ip) and the assigned NodePort.
 
 3. Access in Browser:
-    Once exposed, you should be able to access the application (e.g., `http://<EXTERNAL_IP_FROM_TUNNEL>:8080` or `http://$(minikube ip):<NODE_PORT>)`. APM data will appear under "Sample PHP App (K8s)".
+    Once exposed, you should be able to access the application (e.g., `http://<EXTERNAL_IP_FROM_TUNNEL>:8080` or `http://$(minikube ip):<NODE_PORT>)`. APM data will appear under "Simple PHP App (K8s)".
 
 ---
 ## 3. Kubernetes Cluster Monitoring with New Relic (Example)
@@ -149,7 +149,7 @@ The following Helm command is provided as an example of how this might be done a
 ```bash
 # Define your New Relic License Key and Cluster Name
 export NR_LICENSE_KEY="<YOUR_NEW_RELIC_LICENSE_KEY>"
-export NR_CLUSTER_NAME="minikube-cluster-sample" # Choose a name for your cluster
+export NR_CLUSTER_NAME="minikube-cluster" # Choose a name for your cluster
 
 # Add New Relic Helm repo
 helm repo add newrelic [https://helm-charts.newrelic.com](https://helm-charts.newrelic.com)
@@ -182,7 +182,7 @@ This example installs various components. You can customize these based on your 
 ---
 ## Verification
 
-- APM Data: After deploying your application (local Docker or Kubernetes) and generating some traffic, log in to your New Relic account. Navigate to "APM & Services." You should see your application listed (e.g., "Sample PHP App (Local Docker)" or "Sample PHP App (K8s)") and be able to drill into transaction traces, errors, etc.
+- APM Data: After deploying your application (local Docker or Kubernetes) and generating some traffic, log in to your New Relic account. Navigate to "APM & Services." You should see your application listed (e.g., "Simple PHP App (Local Docker)" or "Simple PHP App (K8s)") and be able to drill into transaction traces, errors, etc.
 - Kubernetes Cluster Data: If you installed the Kubernetes integration, navigate to "Infrastructure" -> "Kubernetes" in New Relic to see data from your cluster.
 - It might take 5-10 minutes for initial data to appear.
 

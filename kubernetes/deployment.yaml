@@ -15,7 +15,7 @@ spec:
       containers:
       - name: simple-php-app
         # image: your-dockerhub-username/simple-php-app:latest
-        image: simple-php-newrelic-app:latest # Use the local image name
+        image: simple-php-app:latest # Use the local image name
         imagePullPolicy: Never       # Prevent Kubernetes from trying to pull the image from a registry
         ports:
         - containerPort: 8080
