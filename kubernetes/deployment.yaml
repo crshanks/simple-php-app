@@ -19,13 +19,27 @@ spec:
         imagePullPolicy: Never       # Prevent Kubernetes from trying to pull the image from a registry
         ports:
         - containerPort: 8080
+        # env:
+        # # 1. Use the Downward API to get the pod's name and store it in MY_POD_NAME
+        # - name: MY_POD_NAME
+        #   valueFrom:
+        #     fieldRef:
+        #       fieldPath: metadata.name
+        # # 2. Tell the New Relic agent to use the pod name for its display name
+        # - name: NEW_RELIC_PROCESS_HOST_DISPLAY_NAME
+        #   value: $(MY_POD_NAME)
         envFrom:
         - secretRef:
             name: newrelic-secret
         resources:
           limits:
-            memory: "128Mi"
+            memory: "256Mi"
             cpu: "500m"
           requests:
-            memory: "64Mi"
+            memory: "128Mi"
             cpu: "250m"
+        # # This lifecycle hook creates the overriding .ini file at startup
+        # lifecycle:
+        #   postStart:
+        #     exec:
+        #       command: ["/bin/sh", "-c", "echo newrelic.process_host.display_name = $MY_POD_NAME > /usr/local/etc/php/conf.d/99-newrelic-hostname.ini"]

@@ -3,19 +3,15 @@ set -e # Exit immediately if a command exits with a non-zero status
 
 NR_INI_FILE="/usr/local/etc/php/conf.d/newrelic.ini"
 
-# Check if the required environment variables are set
-if [ -z "$NEW_RELIC_LICENSE_KEY" ]; then
-  echo "Error: NEW_RELIC_LICENSE_KEY environment variable is not set."
+# Ensure required environment variables are set
+if [ -z "$NEW_RELIC_LICENSE_KEY" ] || [ -z "$NEW_RELIC_APP_NAME" ]; then
+  echo "Error: NEW_RELIC_LICENSE_KEY and NEW_RELIC_APP_NAME must be set."
   exit 1
 fi
 
-if [ -z "$NEW_RELIC_APP_NAME" ]; then
-  echo "Error: NEW_RELIC_APP_NAME environment variable is not set."
-  exit 1
-fi
-
+# Update the .ini file from environment variables
 # The newrelic-install script should have already created a newrelic.ini.
-# We will modify it.
+# Let's modify it.
 if [ -f "$NR_INI_FILE" ]; then
   echo "Updating $NR_INI_FILE with environment variables..."
 
@@ -31,6 +27,22 @@ if [ -f "$NR_INI_FILE" ]; then
     "s@newrelic.appname =.*@newrelic.appname = \"${NEW_RELIC_APP_NAME}\"@" \
     "$NR_INI_FILE"
 
+  # Set log level to debug - first remove any semicolon if it exists, then set the value
+  sed -i \
+    "s@;*newrelic.loglevel =.*@newrelic.loglevel = \"verbosedebug\"@" \
+    "$NR_INI_FILE"
+
+  # Set daemon log level to debug - first remove any semicolon if it exists, then set the value
+  sed -i \
+    "s@;*newrelic.daemon.loglevel =.*@newrelic.daemon.loglevel = \"verbosedebug\"@" \
+    "$NR_INI_FILE"
+
+  # # Set the process_host.display_name to the container name
+  # CONTAINER_NAME=minikube
+  # sed -i \
+  #   "s@;*newrelic.process_host.display_name =.*@newrelic.process_host.display_name = \"${CONTAINER_NAME}\"@" \
+  #   "$NR_INI_FILE"
+
   echo "$NR_INI_FILE updated successfully."
   echo "--- Content of $NR_INI_FILE (for verification) ---"
   cat "$NR_INI_FILE"
@@ -40,5 +52,5 @@ else
   # Depending on strictness, you might want to exit 1 here too.
 fi
 
-# Execute the command passed as arguments to this script (the Docker CMD)
+echo "Starting PHP server..."
 exec "$@"

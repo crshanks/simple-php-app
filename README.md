@@ -152,7 +152,7 @@ export NR_LICENSE_KEY="<YOUR_NEW_RELIC_LICENSE_KEY>"
 export NR_CLUSTER_NAME="minikube-cluster" # Choose a name for your cluster
 
 # Add New Relic Helm repo
-helm repo add newrelic [https://helm-charts.newrelic.com](https://helm-charts.newrelic.com)
+helm repo add newrelic https://helm-charts.newrelic.com
 helm repo update
 
 # Create a namespace for New Relic components
@@ -163,11 +163,10 @@ helm upgrade --install newrelic-bundle newrelic/nri-bundle \
   --set global.licenseKey=$NR_LICENSE_KEY \
   --set global.cluster=$NR_CLUSTER_NAME \
   --namespace=newrelic \
+  --set newrelic-metadata-injection.enabled=true \
   --set newrelic-infrastructure.privileged=true \
   --set global.lowDataMode=true \
   --set kube-state-metrics.enabled=true \
-  # The nri-bundle typically manages the KSM image tag. If you need to override, uncomment and set:
-  # --set kube-state-metrics.image.tag="vX.Y.Z" \
   --set kubeEvents.enabled=true \
   --set newrelic-prometheus-agent.enabled=true \
   --set newrelic-prometheus-agent.lowDataMode=true \
@@ -178,6 +177,29 @@ helm upgrade --install newrelic-bundle newrelic/nri-bundle \
 
 Replace `<YOUR_NEW_RELIC_LICENSE_KEY>` before running.
 This example installs various components. You can customize these based on your needs by referring to the `nri-bundle` chart's values and the official documentation.
+
+**Optional: Using values.yaml for New Relic Kubernetes Integration:**
+
+For more control over the New Relic Kubernetes integration configuration, you can use a sample values file that's included in the repository:
+
+```bash
+# Copy the sample values file to create your own configuration
+cp values.sample.yaml values.yaml
+
+# Replace placeholders with your actual values
+sed -i '' "s/YOUR_LICENSE_KEY/$NR_LICENSE_KEY/" values.yaml
+sed -i '' "s/YOUR_CLUSTER_NAME/$NR_CLUSTER_NAME/" values.yaml
+
+# Review the values file and make any additional customizations
+cat values.yaml
+
+# Install using the values file
+helm upgrade --install newrelic-bundle newrelic/nri-bundle \
+  -f values.yaml \
+  --namespace newrelic
+```
+
+This approach provides more flexibility and makes configuration changes easier to track. The sample values file includes commonly used settings that you can customize for your environment.
 
 ---
 ## Verification

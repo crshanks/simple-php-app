@@ -1,0 +1,54 @@
+# PHP specific
+/vendor/
+composer.lock
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+*.ini
+
+# New Relic specific
+newrelic-*.log
+/newrelic/
+
+# OS specific files
+.DS_Store
+Thumbs.db
+._.DS_Store
+._*
+
+# IDE and editor specific files
+/.idea/
+/.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+.phpunit.result.cache
+
+# Docker specific
+docker-compose.override.yml
+
+# Kubernetes secrets and config maps
+kubeconfig
+*_secret.yaml
+*-secret.yaml
+
+# Build artifacts and temp files
+/build/
+/dist/
+/tmp/
+*.tmp
+*.bak
+.cache/
+
+# Dependency directories
+node_modules/
+bower_components/
+
+# Logs and databases
+*.sql
+*.sqlite
+logs/

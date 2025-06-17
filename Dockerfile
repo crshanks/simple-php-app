@@ -19,6 +19,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
     gnupg \
+    procps \
+    vim \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
